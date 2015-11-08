@@ -3,7 +3,7 @@ from setuptools import setup
 setup(name='doitim',
     version='0.1',
     description='Linux light doit.im client',
-    url='http://github.com/valievkarim/doitim',
+    url='https://github.com/valievkarim/doitim',
     author='Karim Valiev',
     author_email='valievkarim@gmail.com',
     license='GPL',
