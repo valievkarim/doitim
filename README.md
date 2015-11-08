@@ -24,3 +24,5 @@ You can bind it to key in your window manager
 
 ![Screenshot](http://i.imgur.com/9Kyt5XG.png)
 
+Configuration is stored at ~/.doit-light/config
+
