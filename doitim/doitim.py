@@ -13,6 +13,7 @@ import json
 class SigninWindow(Gtk.Window):
     def __init__(self, config):
         Gtk.Window.__init__(self, title="doit.im")
+        self.set_default_size(600, 150)
         self.config = config
         self.box = Gtk.VBox()
         self.username_entry = Gtk.Entry()
@@ -26,15 +27,26 @@ class SigninWindow(Gtk.Window):
         self.button.connect("clicked", self.on_button_clicked)
         self.username_entry.connect("activate", self.on_button_clicked)
         self.password_entry.connect("activate", self.on_button_clicked)
+        self.username_entry.connect("changed", self.on_changed)
+        self.password_entry.connect("changed", self.on_changed)
+        self.button.set_sensitive(False)
         self.box.pack_start(self.username_entry, True, True, 0)
         self.box.pack_start(self.password_entry, True, True, 0)
         self.box.pack_start(self.button, True, True, 0)
-        self.box.pack_start(self.statusbar, True, True, 0)
+        self.box.pack_start(self.statusbar, False, True, 0)
         self.add(self.box)
 
+    def on_changed(self, widget):
+        if self.username_entry.get_text() and self.password_entry.get_text():
+            self.button.set_sensitive(True)
+        else:
+            self.button.set_sensitive(False)
+            
     def on_button_clicked(self, widget):
         username = self.username_entry.get_text()
         password = self.password_entry.get_text()
+        if not (username and password):
+            return
         self.statusbar.remove_all(self.context_id)
         try:
             doit = Doit(username, password, None)
@@ -58,7 +70,7 @@ class SigninWindow(Gtk.Window):
 class AddWindow(Gtk.Window):
     def __init__(self, config):
         Gtk.Window.__init__(self, title="doit.im")
-        self.set_default_size(600, 300)
+        self.set_default_size(600, 150)
         self.config = config
         self.box = Gtk.VBox()
         self.text_entry = Gtk.Entry()
@@ -68,14 +80,24 @@ class AddWindow(Gtk.Window):
         self.button = Gtk.Button(label="Add")
         self.button.connect("clicked", self.on_button_clicked)
         self.text_entry.connect("activate", self.on_button_clicked)
-        self.box.pack_start(self.text_entry, True, True, 0)
+        self.text_entry.connect("changed", self.on_changed)
+        self.button.set_sensitive(False)
+        self.box.pack_start(self.text_entry, False, True, 0)
         self.box.pack_start(self.button, True, True, 0)
-        self.box.pack_start(self.statusbar, True, True, 0)
+        self.box.pack_start(self.statusbar, False, True, 0)
         self.add(self.box)
+
+    def on_changed(self, widget):
+        if self.text_entry.get_text():
+            self.button.set_sensitive(True)
+        else:
+            self.button.set_sensitive(False)
 
 
     def on_button_clicked(self, widget):
         text = self.text_entry.get_text()
+        if not text:
+            return
         try:
             doit = Doit(self.config.username, self.config.password, self.config.cookie)
             doit.add(text)
@@ -144,7 +166,7 @@ class Doit(object):
 
     def auth(self):
         ck = {}
-        getans("http://i.doit.im/signin", "username=%s&password=%s&autologin=1" % (quote(self.username), quote(self.password)), ck=ck)
+        getans("http://i.doit.im/signin", "username=%s&password=%s&autologin=1" % (quote(self.username), quote(self.password)), ck=ck, timeout=10, tries=1)
         if 'autologin' in ck:
             self.cookie = ck['autologin']
         else:
@@ -155,7 +177,7 @@ class Doit(object):
         task = {"all_day":True,"archived":0,"assignment":None,"attribute":"inbox","completed":0,"deleted":0,"end_at":0,"forwarded_by":None,"hidden":0,"uuid":str(uuid.uuid4()),"type":"task","notes":"","priority":0,"reminders":[],"repeat_no":None,"repeater":None,"start_at":None,"tags":[],"title":text,"trashed":0,"now":False,"project":None,"goal":None,"context":None,"pos":6834386}
 
         print json.dumps(task)
-        res = str(getans("http://i.doit.im/api/tasks/create", json.dumps(task), ck=ck, headers=["Content-Type: application/json; charset=utf-8"]).body())
+        res = str(getans("http://i.doit.im/api/tasks/create", json.dumps(task), ck=ck, headers=["Content-Type: application/json; charset=utf-8"], timeout=10, vrb=1, tries=1).body())
         print res
         r = json.loads(res)
         if r["message"] == "require login":
