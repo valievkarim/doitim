@@ -37,7 +37,7 @@ class SigninWindow(Gtk.Window):
         self.add(self.box)
 
     def on_changed(self, widget):
-        if self.username_entry.get_text() and self.password_entry.get_text():
+        if self.username_entry.get_text() and self.password_entry.get_text() and self.username_entry.get_text() != "username":
             self.button.set_sensitive(True)
         else:
             self.button.set_sensitive(False)
@@ -45,7 +45,7 @@ class SigninWindow(Gtk.Window):
     def on_button_clicked(self, widget):
         username = self.username_entry.get_text()
         password = self.password_entry.get_text()
-        if not (username and password):
+        if not (username and password and username != "username"):
             return
         self.statusbar.remove_all(self.context_id)
         try:

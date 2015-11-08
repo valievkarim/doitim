@@ -7,7 +7,7 @@ How to install:
 ---------------
 
 ```bash
-sudo apt-get install python-gobject
+sudo apt-get install python-gobject gir1.2-gtk-3.0
 git clone https://github.com/valievkarim/doitim.git
 cd doitim
 sudo python2 setup.py install
